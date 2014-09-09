@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE extension SYSTEM "ext-1.0.dtd">
+<extension engine="1.0">
+	<id>punbb_new_posts_count</id>
+	<title>New Posts Count</title>
+	<version>0.9.0</version>
+	<description>Shows the amount of unread posts in the `New Posts` link.</description>
+	<author>goto-bus-stop</author>
+
+	<minversion>1.4RC1</minversion>
+	<maxtestedon>1.4.2</maxtestedon>
+
+  <hooks>
+    <hook id="hd_visit_elements"><![CDATA[
+      if (!empty($visit_links['newposts']))
+      {
+        // roughly the same as the New Posts search query
+        // this returns all the unread topics from since the last time we visited
+        // which will usually be the previous login session
+        $query = array(
+          'SELECT' => 't.id, t.last_post',
+          'FROM'   => 'topics AS t',
+          'JOINS'  => array(
+            array(
+              'INNER JOIN' => 'forums AS f',
+              'ON'         => 'f.id=t.forum_id'
+            ),
+            array(
+              'LEFT JOIN'  => 'forum_perms AS fp',
+              'ON'         => '(fp.forum_id=f.id AND fp.group_id='.$forum_user['g_id'].')'
+            )
+          ),
+          'WHERE'  => '(fp.read_forum IS NULL OR fp.read_forum=1) AND t.last_post>'.$forum_user['last_visit'].' AND t.moved_to IS NULL'
+        );
+
+        $result = $forum_db->query_build($query) or error(__FILE__, __LINE__);
+        $unread_topics = array();
+        while ($unread_topic = $forum_db->fetch_assoc($result)) {
+          $unread_topics[] = $unread_topic;
+        }
+        if (count($unread_topics) > 0) {
+          $tracked_topics = get_tracked_topics();
+          $count = 0;
+          // only count topics that we haven't yet read in this session
+          foreach ($unread_topics as $topic) {
+            if (empty($tracked_topics['topics'][$topic['id']]) || $tracked_topics['topics'][$topic['id']] < $topic['last_post']) {
+              $count++;
+            }
+          }
+          if ($count > 0) {
+            $visit_links['newposts'] = str_replace(
+              $lang_common['New posts'].'</a>',
+              '<strong>'.$lang_common['New posts'].' ('.$count.')</strong></a>',
+              $visit_links['newposts']
+            );
+          }
+        }
+      }
+    ]]></hook>
+  </hooks>
+</extension>
