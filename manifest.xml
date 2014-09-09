@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE extension SYSTEM "ext-1.0.dtd">
 <extension engine="1.0">
-	<id>punbb_new_posts_count</id>
-	<title>New Posts Count</title>
-	<version>0.9.0</version>
-	<description>Shows the amount of unread posts in the `New Posts` link.</description>
-	<author>goto-bus-stop</author>
+  <id>punbb_new_posts_count</id>
+  <title>New Posts Count</title>
+  <version>0.9.0</version>
+  <description>Shows the amount of unread posts in the `New Posts` link.</description>
+  <author>goto-bus-stop</author>
 
-	<minversion>1.4RC1</minversion>
-	<maxtestedon>1.4.2</maxtestedon>
+  <minversion>1.4RC1</minversion>
+  <maxtestedon>1.4.2</maxtestedon>
 
   <hooks>
     <hook id="hd_visit_elements"><![CDATA[
